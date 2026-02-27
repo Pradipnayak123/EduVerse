@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduVerse – Education Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ═══════════════════════════════════════════
+     GLOBAL VARIABLES & RESET
+  ═══════════════════════════════════════════ */
+  :root {
+    --primary: #0a2540;
+    --accent: #f5a623;
+    --accent2: #00c9a7;
+    --light: #f7f5f0;
+    --text: #1a1a2e;
+    --muted: #8892a4;
+    --card: #ffffff;
+    --sidebar-w: 260px;
+    --grad1: linear-gradient(135deg, #0a2540 0%, #1a3a5c 50%, #0d4b7c 100%);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--light); color: var(--text); overflow-x: hidden; }
+
+  /* ═══════════════════════════════════════════
+     PAGE SYSTEM — show/hide pages
+  ═══════════════════════════════════════════ */
+  .page { display: none; min-height: 100vh; }
+  .page.active { display: flex; }
+  #page-dashboard.active,
+  #page-courses.active,
+  #page-profile.active,
+  #page-leaderboard.active,
+  #page-schedule.active { display: flex; }
+
+  /* ═══════════════════════════════════════════
+     ── LOGIN PAGE ──
+  ═══════════════════════════════════════════ */
+  #page-login { flex-direction: row; }
+  .login-left {
+    flex: 1.2; background: var(--grad1);
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: flex-start;
+    padding: 60px 70px; position: relative; overflow: hidden;
+  }
+  .login-left::before {
+    content: ''; position: absolute; width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,166,35,0.18) 0%, transparent 70%);
+    top: -100px; left: -100px; animation: pulse 6s ease-in-out infinite;
+  }
+  .login-left::after {
+    content: ''; position: absolute; width: 400px; height: 400px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,201,167,0.15) 0%, transparent 70%);
+    bottom: -80px; right: -80px; animation: pulse 8s ease-in-out infinite reverse;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
+
+  .ll-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 70px; z-index: 2; position: relative; }
+  .ll-logo-icon { width: 48px; height: 48px; background: var(--accent); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 8px 24px rgba(245,166,35,0.4); }
+  .ll-logo-text { font-family: 'Playfair Display', serif; font-size: 28px; color: #fff; font-weight: 900; }
+  .ll-logo-text span { color: var(--accent); }
+
+  .ll-title { font-family: 'Playfair Display', serif; font-size: clamp(36px,4vw,56px); color: #fff; font-weight: 900; line-height: 1.1; margin-bottom: 20px; z-index: 2; position: relative; }
+  .ll-title .hl { color: var(--accent); display: block; }
+  .ll-sub { font-size: 16px; color: rgba(255,255,255,0.65); line-height: 1.7; max-width: 400px; margin-bottom: 48px; z-index: 2; position: relative; }
+  .ll-stats { display: flex; gap: 40px; z-index: 2; position: relative; }
+  .ll-stat-num { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; color: var(--accent); }
+  .ll-stat-label { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+  .ll-float-cards { position: absolute; right: -20px; bottom: 100px; display: flex; flex-direction: column; gap: 14px; z-index: 2; }
+  .ll-fcard {
+    background: rgba(255,255,255,0.1); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
+    padding: 14px 20px; display: flex; align-items: center; gap: 12px; min-width: 200px;
+    animation: floatUp 3s ease-in-out infinite;
+  }
+  .ll-fcard:nth-child(2) { animation-delay: 1.5s; }
+  @keyframes floatUp { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+  .ll-fcard-title { font-size: 12px; color: #fff; font-weight: 600; }
+  .ll-fcard-sub { font-size: 11px; color: rgba(255,255,255,0.5); }
+
+  .login-right {
+    flex: 1; background: var(--light);
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px; overflow-y: auto;
+  }
+  .login-form-card {
+    background: var(--card); border-radius: 28px; padding: 52px 48px;
+    width: 100%; max-width: 440px;
+    box-shadow: 0 32px 80px rgba(10,37,64,0.12);
+    animation: slideUp 0.8s cubic-bezier(0.16,1,0.3,1) both;
+  }
+  @keyframes slideUp { from{opacity:0;transform:translateY(40px);} to{opacity:1;transform:translateY(0);} }
+
+  .lf-title { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 900; color: var(--text); margin-bottom: 8px; }
+  .lf-sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; }
+  .lf-sub a { color: var(--accent); text-decoration: none; font-weight: 600; cursor: pointer; }
+
+  .tab-row { display: flex; background: #f0eeea; border-radius: 12px; padding: 4px; margin-bottom: 28px; gap: 4px; }
+  .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; color: var(--muted); cursor: pointer; transition: all 0.3s; }
+  .tab-btn.active { background: #fff; color: var(--text); font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+  .field-group { margin-bottom: 18px; position: relative; }
+  .field-label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 7px; }
+  .field-input { width: 100%; padding: 13px 16px 13px 46px; border: 2px solid #e8e5df; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; color: var(--text); background: #fafaf8; transition: all 0.3s; outline: none; }
+  .field-input:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 4px rgba(245,166,35,0.1); }
+  .field-icon { position: absolute; left: 14px; bottom: 14px; font-size: 17px; pointer-events: none; }
+  .toggle-pw { position: absolute; right: 14px; bottom: 14px; background: none; border: none; cursor: pointer; font-size: 17px; color: var(--muted); }
+  .row-inline { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .remember { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); cursor: pointer; }
+  .remember input { accent-color: var(--accent); }
+  .forgot-link { font-size: 13px; color: var(--accent); text-decoration: none; font-weight: 600; }
+  .role-select { width: 100%; padding: 13px 16px; border: 2px solid #e8e5df; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; color: var(--text); background: #fafaf8; outline: none; cursor: pointer; transition: all 0.3s; }
+  .role-select:focus { border-color: var(--accent); background: #fff; }
+
+  .btn-primary { width: 100%; padding: 16px; background: linear-gradient(135deg, #0a2540, #1a3a5c); color: #fff; border: none; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(10,37,64,0.3); }
+  .btn-primary-gold { background: linear-gradient(135deg, #f5a623, #e8920e); color: var(--primary); }
+  .btn-primary-gold:hover { box-shadow: 0 12px 32px rgba(245,166,35,0.35); }
+
+  .divider { display: flex; align-items: center; gap: 16px; margin: 22px 0; }
+  .divider-line { flex: 1; height: 1px; background: #e8e5df; }
+  .divider-text { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .social-row { display: flex; gap: 12px; }
+  .social-btn { flex: 1; padding: 12px; border: 2px solid #e8e5df; border-radius: 12px; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text); transition: all 0.3s; }
+  .social-btn:hover { border-color: #ccc; transform: translateY(-1px); }
+  .social-icon { width: 20px; height: 20px; }
+
+  #lf-signup { display: none; }
+
+  /* ═══════════════════════════════════════════
+     ── MAIN APP LAYOUT (Sidebar + Content) ──
+  ═══════════════════════════════════════════ */
+  .app-layout { display: flex; width: 100%; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar-w); background: var(--primary); min-height: 100vh;
+    display: flex; flex-direction: column; padding: 32px 20px;
+    position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; transition: transform 0.3s;
+  }
+  .sb-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 44px; padding: 0 8px; }
+  .sb-logo-icon { width: 40px; height: 40px; background: var(--accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 6px 16px rgba(245,166,35,0.35); }
+  .sb-logo-text { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 900; color: #fff; }
+  .sb-logo-text span { color: var(--accent); }
+
+  .nav-section-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.3); font-weight: 600; padding: 0 12px; margin-bottom: 8px; margin-top: 24px; display: block; }
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; color: rgba(255,255,255,0.55); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.25s; text-decoration: none; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+  .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .nav-item.active { background: var(--accent); color: var(--primary); font-weight: 700; box-shadow: 0 4px 16px rgba(245,166,35,0.3); }
+  .nav-icon { font-size: 18px; width: 24px; text-align: center; }
+  .nav-badge { margin-left: auto; background: var(--accent2); color: var(--primary); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+  .nav-item.active .nav-badge { background: var(--primary); color: var(--accent); }
+
+  .sb-bottom { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+  .user-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; cursor: pointer; transition: background 0.25s; }
+  .user-card:hover { background: rgba(255,255,255,0.08); }
+  .user-av { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #e8920e); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--primary); flex-shrink: 0; }
+  .user-info { flex: 1; overflow: hidden; }
+  .user-name { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+  .logout-btn { color: rgba(255,255,255,0.4); font-size: 16px; cursor: pointer; border: none; background: none; transition: color 0.2s; }
+  .logout-btn:hover { color: #ff6b6b; }
+
+  /* MAIN AREA */
+  .main-area { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; width: calc(100% - var(--sidebar-w)); }
+  .topbar { background: #fff; padding: 18px 36px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid #ece9e2; position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+  .topbar-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--text); }
+  .topbar-search { flex: 1; max-width: 420px; margin-left: auto; display: flex; align-items: center; background: var(--light); border: 2px solid #ece9e2; border-radius: 12px; padding: 10px 16px; gap: 10px; transition: border-color 0.3s; }
+  .topbar-search:focus-within { border-color: var(--accent); }
+  .topbar-search input { border: none; background: transparent; flex: 1; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); outline: none; }
+  .topbar-search input::placeholder { color: var(--muted); }
+  .topbar-icons { display: flex; align-items: center; gap: 8px; margin-left: 16px; }
+  .topbar-icon-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--light); border: 1px solid #ece9e2; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; transition: all 0.25s; position: relative; }
+  .topbar-icon-btn:hover { background: #ece9e2; }
+  .notif-dot { position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background: #ff4757; border-radius: 50%; border: 2px solid #fff; }
+  .content { padding: 36px; flex: 1; }
+
+  /* ═══════════════════════════════════════════
+     ── DASHBOARD PAGE ──
+  ═══════════════════════════════════════════ */
+  .welcome-banner {
+    background: linear-gradient(135deg, #0a2540 0%, #1a3a5c 60%, #0d4b7c 100%);
+    border-radius: 24px; padding: 36px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 36px; position: relative; overflow: hidden;
+  }
+  .welcome-banner::before { content: ''; position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, rgba(245,166,35,0.2) 0%, transparent 70%); top: -80px; right: 200px; }
+  .wb-text { z-index: 1; }
+  .wb-greet { font-size: 14px; color: var(--accent); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .wb-title { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 900; color: #fff; margin-bottom: 10px; }
+  .wb-sub { font-size: 14px; color: rgba(255,255,255,0.6); max-width: 380px; }
+  .wb-actions { display: flex; gap: 12px; margin-top: 24px; }
+  .btn-gold { padding: 12px 24px; background: var(--accent); color: var(--primary); border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; box-shadow: 0 6px 20px rgba(245,166,35,0.4); }
+  .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(245,166,35,0.5); }
+  .btn-outline-white { padding: 12px 24px; background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.3); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+  .btn-outline-white:hover { background: rgba(255,255,255,0.1); }
+  .wb-emoji { z-index: 1; font-size: 80px; opacity: 0.9; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 36px; }
+  .stat-card { background: var(--card); border-radius: 20px; padding: 24px; border: 1px solid #ece9e2; transition: all 0.3s; display: flex; align-items: flex-start; gap: 16px; }
+  .stat-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.08); }
+  .stat-icon-box { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .stat-value { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--text); }
+  .stat-label { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .stat-change { font-size: 12px; font-weight: 600; margin-top: 6px; }
+  .stat-change.up { color: var(--accent2); }
+
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--text); }
+  .section-link { font-size: 13px; color: var(--accent); font-weight: 600; text-decoration: none; cursor: pointer; }
+  .section-link:hover { text-decoration: underline; }
+
+  .courses-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-bottom: 40px; }
+  .course-card { background: var(--card); border-radius: 20px; overflow: hidden; border: 1px solid #ece9e2; transition: all 0.3s; cursor: pointer; }
+  .course-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(0,0,0,0.1); }
+  .course-thumb { height: 150px; display: flex; align-items: center; justify-content: center; font-size: 52px; position: relative; overflow: hidden; }
+  .course-cat-tag { position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,0.9); border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 700; color: var(--primary); }
+  .course-price-badge { position: absolute; top: 12px; right: 12px; border-radius: 8px; padding: 4px 10px; font-size: 12px; font-weight: 700; }
+  .course-body { padding: 20px; }
+  .course-title { font-weight: 700; font-size: 16px; color: var(--text); margin-bottom: 8px; line-height: 1.35; }
+  .course-instructor { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+  .course-progress-bar { background: #ece9e2; border-radius: 6px; height: 6px; margin-bottom: 8px; }
+  .course-progress-fill { height: 6px; border-radius: 6px; background: linear-gradient(90deg, var(--accent2), #00e6be); }
+  .course-progress-text { font-size: 12px; color: var(--muted); }
+  .course-footer { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-top: 1px solid #ece9e2; }
+  .course-rating { font-size: 13px; font-weight: 600; color: var(--text); }
+  .course-students { font-size: 12px; color: var(--muted); }
+  .continue-btn { background: var(--primary); color: #fff; border: none; border-radius: 10px; padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.25s; }
+  .continue-btn:hover { background: var(--accent); color: var(--primary); }
+  .continue-btn.green { background: var(--accent2); }
+
+  .two-col { display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; margin-bottom: 40px; }
+  .panel-card { background: var(--card); border-radius: 20px; padding: 28px; border: 1px solid #ece9e2; }
+
+  .activity-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid #f5f3ef; }
+  .activity-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .act-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .act-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .act-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .act-time { margin-left: auto; font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+  .lb-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f5f3ef; }
+  .lb-item:last-child { border-bottom: none; }
+  .lb-rank { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; color: var(--muted); background: #f5f3ef; }
+  .lb-rank.gold { background: #fff3cd; color: #b8860b; }
+  .lb-rank.silver { background: #f0f0f0; color: #888; }
+  .lb-rank.bronze { background: #fde8d8; color: #cd5c5c; }
+  .lb-av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .lb-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .lb-pts { margin-left: auto; font-size: 13px; font-weight: 700; color: var(--accent); }
+
+  .event-item { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid #f5f3ef; }
+  .event-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .event-date-box { width: 48px; height: 52px; background: var(--primary); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
+  .event-day { font-size: 18px; font-weight: 900; color: var(--accent); font-family: 'Playfair Display', serif; }
+  .event-month { font-size: 10px; color: rgba(255,255,255,0.6); text-transform: uppercase; }
+  .evt-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .evt-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .event-badge { margin-left: auto; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; }
+
+  /* ═══════════════════════════════════════════
+     ── COURSES PAGE ──
+  ═══════════════════════════════════════════ */
+  .page-header { margin-bottom: 32px; }
+  .page-header h1 { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 900; color: var(--text); margin-bottom: 8px; }
+  .page-header p { font-size: 15px; color: var(--muted); }
+
+  .filter-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 32px; }
+  .filter-chip { padding: 9px 20px; border-radius: 50px; border: 2px solid #ece9e2; background: var(--card); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; transition: all 0.25s; }
+  .filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-chip.active { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
+  .filter-right { margin-left: auto; }
+  .sort-select { padding: 9px 16px; border: 2px solid #ece9e2; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); background: var(--card); outline: none; cursor: pointer; }
+
+  .featured-banner {
+    background: linear-gradient(135deg, #0a2540, #0d4b7c);
+    border-radius: 24px; padding: 36px 40px;
+    display: flex; align-items: center; gap: 36px;
+    margin-bottom: 40px; cursor: pointer; transition: transform 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .featured-banner:hover { transform: translateY(-3px); }
+  .featured-banner::before { content: ''; position: absolute; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(245,166,35,0.15) 0%, transparent 70%); top: -100px; right: 100px; }
+  .feat-tag { background: var(--accent); color: var(--primary); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; display: inline-block; margin-bottom: 12px; }
+  .feat-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 10px; z-index: 1; position: relative; }
+  .feat-sub { font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 20px; z-index: 1; position: relative; }
+  .feat-meta { display: flex; gap: 24px; margin-bottom: 24px; z-index: 1; position: relative; }
+  .feat-meta-item { font-size: 13px; color: rgba(255,255,255,0.7); }
+  .feat-actions { display: flex; gap: 12px; z-index: 1; position: relative; }
+  .feat-emoji { font-size: 80px; flex-shrink: 0; z-index: 1; }
+  .btn-ghost-white { padding: 12px 24px; background: transparent; color: rgba(255,255,255,0.8); border: 2px solid rgba(255,255,255,0.3); border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+  .btn-ghost-white:hover { background: rgba(255,255,255,0.1); }
+
+  .explore-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-bottom: 40px; }
+  .exp-course-card { background: var(--card); border-radius: 20px; overflow: hidden; border: 1px solid #ece9e2; transition: all 0.3s; cursor: pointer; }
+  .exp-course-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(0,0,0,0.1); }
+  .exp-thumb { height: 155px; display: flex; align-items: center; justify-content: center; font-size: 52px; position: relative; }
+  .course-level { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .level-beginner { background: #d4f5ee; color: #0a7c5c; }
+  .level-intermediate { background: #fff3cd; color: #b8860b; }
+  .level-advanced { background: #fde8e8; color: #c0392b; }
+  .exp-meta-row { display: flex; gap: 16px; margin-bottom: 14px; }
+  .exp-meta-item { font-size: 12px; color: var(--muted); }
+  .enroll-btn { padding: 8px 18px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.25s; }
+  .enroll-btn:hover { background: var(--accent); color: var(--primary); }
+  .enroll-btn.enrolled { background: var(--accent2); }
+
+  .pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 40px; margin-bottom: 20px; }
+  .page-btn { width: 40px; height: 40px; border-radius: 10px; border: 2px solid #ece9e2; background: var(--card); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all 0.25s; display: flex; align-items: center; justify-content: center; }
+  .page-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .page-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+  /* ═══════════════════════════════════════════
+     ── PROFILE PAGE ──
+  ═══════════════════════════════════════════ */
+  .profile-hero {
+    background: var(--grad1); border-radius: 24px;
+    padding: 40px; margin-bottom: 28px;
+    display: flex; align-items: center; gap: 32px;
+    position: relative; overflow: hidden;
+  }
+  .profile-hero::before { content: ''; position: absolute; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(245,166,35,0.2) 0%, transparent 70%); top: -60px; right: 60px; }
+  .profile-av-big { width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #e8920e); display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 700; color: var(--primary); border: 4px solid rgba(255,255,255,0.3); flex-shrink: 0; z-index: 1; }
+  .profile-info { z-index: 1; }
+  .profile-name { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: #fff; margin-bottom: 6px; }
+  .profile-meta { font-size: 14px; color: rgba(255,255,255,0.65); margin-bottom: 16px; }
+  .profile-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+  .profile-tag { background: rgba(255,255,255,0.15); color: #fff; border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 600; }
+  .profile-actions { margin-left: auto; z-index: 1; display: flex; gap: 12px; flex-direction: column; }
+  .btn-sm { padding: 10px 20px; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.25s; border: none; }
+  .btn-sm-gold { background: var(--accent); color: var(--primary); }
+  .btn-sm-outline { background: transparent; color: rgba(255,255,255,0.8); border: 2px solid rgba(255,255,255,0.3) !important; }
+  .btn-sm-outline:hover { background: rgba(255,255,255,0.1); }
+
+  .profile-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; }
+  .profile-sidebar-col .panel-card { margin-bottom: 20px; }
+  .skill-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .skill-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .skill-pct { font-size: 12px; color: var(--muted); }
+  .skill-bar { height: 6px; background: #ece9e2; border-radius: 6px; margin-top: 6px; }
+  .skill-fill { height: 6px; border-radius: 6px; background: linear-gradient(90deg, var(--accent), #e8920e); }
+  .cert-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f5f3ef; }
+  .cert-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .cert-icon { width: 40px; height: 40px; background: #fff3cd; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .cert-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .cert-date { font-size: 11px; color: var(--muted); }
+  .cert-dl { margin-left: auto; font-size: 18px; cursor: pointer; color: var(--accent); }
+
+  /* ═══════════════════════════════════════════
+     ── LEADERBOARD PAGE ──
+  ═══════════════════════════════════════════ */
+  .lb-podium { display: flex; align-items: flex-end; justify-content: center; gap: 16px; margin-bottom: 48px; }
+  .podium-item { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .podium-av { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; border: 4px solid rgba(255,255,255,0.5); }
+  .podium-crown { font-size: 24px; }
+  .podium-name { font-weight: 700; font-size: 14px; color: var(--text); }
+  .podium-pts { font-size: 13px; color: var(--muted); }
+  .podium-base { border-radius: 16px 16px 0 0; display: flex; align-items: center; justify-content: center; }
+  .podium-rank { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 900; color: rgba(255,255,255,0.7); }
+  .full-lb-list { background: var(--card); border-radius: 20px; border: 1px solid #ece9e2; overflow: hidden; }
+  .full-lb-header { padding: 20px 24px; border-bottom: 1px solid #ece9e2; display: flex; align-items: center; justify-content: space-between; }
+  .full-lb-item { display: flex; align-items: center; gap: 16px; padding: 16px 24px; border-bottom: 1px solid #f5f3ef; transition: background 0.2s; }
+  .full-lb-item:last-child { border-bottom: none; }
+  .full-lb-item:hover { background: #fafaf8; }
+  .full-lb-item.you { background: #fffcf5; }
+  .flb-rank { width: 36px; height: 36px; border-radius: 10px; background: #f5f3ef; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--muted); flex-shrink: 0; }
+  .flb-rank.gold { background: #fff3cd; color: #b8860b; }
+  .flb-rank.silver { background: #e8e8e8; color: #888; }
+  .flb-rank.bronze { background: #fde8d8; color: #cd5c5c; }
+  .flb-av { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 16px; flex-shrink: 0; }
+  .flb-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .flb-level { font-size: 12px; color: var(--muted); }
+  .flb-bar-wrap { flex: 1; margin: 0 16px; }
+  .flb-bar { height: 6px; background: #ece9e2; border-radius: 6px; }
+  .flb-fill { height: 6px; border-radius: 6px; background: linear-gradient(90deg, var(--accent), #e8920e); }
+  .flb-pts { font-size: 15px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+
+  /* ═══════════════════════════════════════════
+     ── SCHEDULE PAGE ──
+  ═══════════════════════════════════════════ */
+  .calendar-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+  .cal-card { background: var(--card); border-radius: 20px; padding: 28px; border: 1px solid #ece9e2; }
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .cal-nav { width: 36px; height: 36px; border-radius: 10px; border: 2px solid #ece9e2; background: var(--card); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.25s; }
+  .cal-nav:hover { border-color: var(--accent); color: var(--accent); }
+  .cal-days-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: 8px; }
+  .cal-day-label { font-size: 12px; font-weight: 700; color: var(--muted); padding: 8px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+  .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-day { padding: 8px; text-align: center; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; position: relative; }
+  .cal-day:hover { background: var(--light); }
+  .cal-day.other-month { color: #ccc; }
+  .cal-day.today { background: var(--primary); color: #fff; font-weight: 700; }
+  .cal-day.has-event::after { content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; background: var(--accent); border-radius: 50%; }
+  .upcoming-list .event-item { padding: 14px 0; }
+  .time-slot { font-size: 11px; color: var(--accent); font-weight: 700; background: rgba(245,166,35,0.1); padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+
+  /* TOAST NOTIFICATION */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--primary); color: #fff; padding: 14px 20px; border-radius: 14px; font-size: 14px; font-weight: 500; z-index: 9999; transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.16,1,0.3,1); box-shadow: 0 16px 40px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* MOBILE TOGGLE */
+  .mobile-toggle { display: none; position: fixed; top: 16px; left: 16px; z-index: 200; width: 44px; height: 44px; border-radius: 12px; background: var(--primary); border: none; font-size: 20px; cursor: pointer; color: #fff; align-items: center; justify-content: center; }
+
+  /* ═══════════════════════════════════════════
+     RESPONSIVE
+  ═══════════════════════════════════════════ */
+  @media (max-width: 1200px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .courses-grid, .explore-grid { grid-template-columns: repeat(2, 1fr); }
+    .profile-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 1000px) {
+    .two-col { grid-template-columns: 1fr; }
+    .calendar-grid { grid-template-columns: 1fr; }
+    .lb-podium { gap: 8px; }
+  }
+  @media (max-width: 900px) {
+    .login-left { display: none; }
+    .login-right { background: var(--grad1); }
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main-area { margin-left: 0; width: 100%; }
+    .mobile-toggle { display: flex; }
+    .wb-emoji { display: none; }
+    .profile-actions { display: none; }
+  }
+  @media (max-width: 700px) {
+    .stats-grid, .courses-grid, .explore-grid { grid-template-columns: 1fr; }
+    .content { padding: 20px; }
+    .topbar { padding: 14px 20px; }
+    .topbar-search { display: none; }
+    .featured-banner { flex-direction: column; gap: 16px; }
+    .feat-emoji { display: none; }
+    .lb-podium { flex-direction: row; align-items: flex-end; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ TOAST ═══════════════ -->
+<div class="toast" id="toast">✅ Action successful!</div>
+<button class="mobile-toggle" id="mobileToggle" onclick="toggleSidebar()">☰</button>
+
+<!-- ╔═══════════════════════════════════════╗
+     ║           LOGIN PAGE                 ║
+     ╚═══════════════════════════════════════╝ -->
+<div id="page-login" class="page active">
+  <div class="login-left">
+    <div class="ll-logo">
+      <div class="ll-logo-icon">🎓</div>
+      <div class="ll-logo-text">Edu<span>Verse</span></div>
+    </div>
+    <h1 class="ll-title">Learn Without<span class="hl">Limits.</span></h1>
+    <p class="ll-sub">Join thousands of learners mastering new skills every day. Access world-class courses, expert mentors, and a vibrant learning community.</p>
+    <div class="ll-stats">
+      <div><div class="ll-stat-num">50K+</div><div class="ll-stat-label">Active Students</div></div>
+      <div><div class="ll-stat-num">1,200+</div><div class="ll-stat-label">Expert Courses</div></div>
+      <div><div class="ll-stat-num">98%</div><div class="ll-stat-label">Success Rate</div></div>
+    </div>
+    <div class="ll-float-cards">
+      <div class="ll-fcard">
+        <span style="font-size:22px">🏆</span>
+        <div><div class="ll-fcard-title">Certificate Earned</div><div class="ll-fcard-sub">Web Development · Just now</div></div>
+      </div>
+      <div class="ll-fcard">
+        <span style="font-size:22px">🔥</span>
+        <div><div class="ll-fcard-title">12-Day Streak!</div><div class="ll-fcard-sub">Keep it up, Ahmed!</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="login-form-card">
+      <h2 class="lf-title" id="lf-title">Welcome Back 👋</h2>
+      <p class="lf-sub" id="lf-sub">New here? <a onclick="switchAuthTab('signup')">Create a free account</a></p>
+
+      <div class="tab-row">
+        <button class="tab-btn active" id="tab-login" onclick="switchAuthTab('login')">Sign In</button>
+        <button class="tab-btn" id="tab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="lf-login">
+        <div class="field-group">
+          <label class="field-label">Email Address</label>
+          <span class="field-icon">📧</span>
+          <input class="field-input" type="email" placeholder="you@example.com" value="ahmed@eduverse.com">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Password</label>
+          <span class="field-icon">🔒</span>
+          <input class="field-input" type="password" id="login-pw" placeholder="Enter your password" value="password123">
+          <button class="toggle-pw" onclick="togglePw('login-pw',this)">👁️</button>
+        </div>
+        <div class="row-inline">
+          <label class="remember"><input type="checkbox" checked> Remember me</label>
+          <a href="#" class="forgot-link">Forgot Password?</a>
+        </div>
+        <button class="btn-primary" onclick="doLogin()">Sign In to EduVerse →</button>
+        <div class="divider"><div class="divider-line"></div><span class="divider-text">OR CONTINUE WITH</span><div class="divider-line"></div></div>
+        <div class="social-row">
+          <button class="social-btn" onclick="doLogin()"><img class="social-icon" src="https://www.svgrepo.com/show/475656/google-color.svg" alt="G"> Google</button>
+          <button class="social-btn" onclick="doLogin()"><img class="social-icon" src="https://www.svgrepo.com/show/448234/facebook.svg" alt="F"> Facebook</button>
+        </div>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div id="lf-signup">
+        <div class="field-group">
+          <label class="field-label">Full Name</label>
+          <span class="field-icon">👤</span>
+          <input class="field-input" type="text" placeholder="Ahmed Al-Rashid">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Email Address</label>
+          <span class="field-icon">📧</span>
+          <input class="field-input" type="email" placeholder="you@example.com">
+        </div>
+        <div class="field-group">
+          <label class="field-label">I am a</label>
+          <select class="role-select">
+            <option>Student</option><option>Teacher / Instructor</option><option>Parent</option><option>Corporate Learner</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Password</label>
+          <span class="field-icon">🔒</span>
+          <input class="field-input" type="password" id="signup-pw" placeholder="Create a strong password">
+          <button class="toggle-pw" onclick="togglePw('signup-pw',this)">👁️</button>
+        </div>
+        <button class="btn-primary btn-primary-gold" onclick="doLogin()">Create Free Account →</button>
+        <div class="divider"><div class="divider-line"></div><span class="divider-text">OR SIGN UP WITH</span><div class="divider-line"></div></div>
+        <div class="social-row">
+          <button class="social-btn" onclick="doLogin()"><img class="social-icon" src="https://www.svgrepo.com/show/475656/google-color.svg" alt="G"> Google</button>
+          <button class="social-btn" onclick="doLogin()"><img class="social-icon" src="https://www.svgrepo.com/show/448234/facebook.svg" alt="F"> Facebook</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔═══════════════════════════════════════╗
+     ║      APP SHELL (Sidebar + Pages)     ║
+     ╚═══════════════════════════════════════╝ -->
+<div id="app-shell" class="page" style="display:none;width:100%;min-height:100vh;">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-icon">🎓</div>
+      <div class="sb-logo-text">Edu<span>Verse</span></div>
+    </div>
+    <span class="nav-section-title">Main Menu</span>
+    <button class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')"><span class="nav-icon">🏠</span> Dashboard</button>
+    <button class="nav-item" id="nav-courses" onclick="showPage('courses')"><span class="nav-icon">📚</span> My Courses <span class="nav-badge">8</span></button>
+    <button class="nav-item" id="nav-schedule" onclick="showPage('schedule')"><span class="nav-icon">📅</span> Schedule</button>
+    <span class="nav-section-title">Community</span>
+    <button class="nav-item" id="nav-leaderboard" onclick="showPage('leaderboard')"><span class="nav-icon">🏆</span> Leaderboard</button>
+    <button class="nav-item" onclick="showToast('💬 Discussions coming soon!')"><span class="nav-icon">💬</span> Discussions <span class="nav-badge">3</span></button>
+    <button class="nav-item" onclick="showToast('👥 Study Groups coming soon!')"><span class="nav-icon">👥</span> Study Groups</button>
+    <span class="nav-section-title">Account</span>
+    <button class="nav-item" id="nav-profile" onclick="showPage('profile')"><span class="nav-icon">👤</span> Profile</button>
+    <button class="nav-item" onclick="showToast('🏅 Certificates page coming soon!')"><span class="nav-icon">🏅</span> Certificates</button>
+    <button class="nav-item" onclick="showToast('⚙️ Settings coming soon!')"><span class="nav-icon">⚙️</span> Settings</button>
+    <div class="sb-bottom">
+      <div class="user-card">
+        <div class="user-av">A</div>
+        <div class="user-info">
+          <div class="user-name">Ahmed Al-Rashid</div>
+          <div class="user-role">Pro Learner · Level 7</div>
+        </div>
+        <button class="logout-btn" onclick="doLogout()" title="Logout">⏻</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN AREA -->
+  <div class="main-area">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <span class="topbar-title" id="topbar-title">Dashboard</span>
+      <div class="topbar-search">
+        <span>🔍</span>
+        <input type="text" placeholder="Search courses, topics...">
+      </div>
+      <div class="topbar-icons">
+        <div class="topbar-icon-btn" onclick="showToast('🔔 You have 3 new notifications!')">🔔<div class="notif-dot"></div></div>
+        <div class="topbar-icon-btn" onclick="showToast('🎁 Daily reward available!')">🎁</div>
+      </div>
+    </div>
+
+    <!-- ── DASHBOARD ── -->
+    <div id="page-dashboard" style="display:block;">
+    <div class="content">
+      <div class="welcome-banner">
+        <div class="wb-text">
+          <div class="wb-greet">📅 Thursday, February 26, 2026</div>
+          <h2 class="wb-title">Good Morning, Ahmed! ☀️</h2>
+          <p class="wb-sub">You're on a <strong style="color:var(--accent)">12-day streak!</strong> Keep learning to hit your weekly goal — you're 78% there.</p>
+          <div class="wb-actions">
+            <button class="btn-gold" onclick="showPage('courses')">Continue Learning</button>
+            <button class="btn-outline-white" onclick="showPage('schedule')">View Schedule</button>
+          </div>
+        </div>
+        <div class="wb-emoji">🎓</div>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon-box" style="background:#fff3cd;">📚</div><div><div class="stat-value" data-target="8">0</div><div class="stat-label">Enrolled Courses</div><div class="stat-change up">↑ 2 this month</div></div></div>
+        <div class="stat-card"><div class="stat-icon-box" style="background:#d4f5ee;">⏱️</div><div><div class="stat-value" data-target="142" data-suffix="h">0h</div><div class="stat-label">Learning Hours</div><div class="stat-change up">↑ 18h this week</div></div></div>
+        <div class="stat-card"><div class="stat-icon-box" style="background:#fde8e8;">🏅</div><div><div class="stat-value" data-target="5">0</div><div class="stat-label">Certificates</div><div class="stat-change up">+1 recently</div></div></div>
+        <div class="stat-card"><div class="stat-icon-box" style="background:#e8f0ff;">🔥</div><div><div class="stat-value" data-target="12">0</div><div class="stat-label">Day Streak</div><div class="stat-change up">Personal best!</div></div></div>
+      </div>
+
+      <!-- CONTINUE LEARNING -->
+      <div class="section-header">
+        <h3 class="section-title">Continue Learning</h3>
+        <a class="section-link" onclick="showPage('courses')">View all courses →</a>
+      </div>
+      <div class="courses-grid">
+        <div class="course-card" onclick="showPage('courses')">
+          <div class="course-thumb" style="background:linear-gradient(135deg,#0a2540,#1a5276);">💻<div class="course-cat-tag">Web Dev</div></div>
+          <div class="course-body">
+            <div class="course-title">Full-Stack JavaScript Mastery</div>
+            <div class="course-instructor">👨‍🏫 Dr. Sarah Chen</div>
+            <div class="course-progress-bar"><div class="course-progress-fill" style="width:72%"></div></div>
+            <div class="course-progress-text">72% complete · 28 of 38 lessons</div>
+          </div>
+          <div class="course-footer"><div><div class="course-rating">⭐ 4.9</div><div class="course-students">12.4K students</div></div><button class="continue-btn">Continue →</button></div>
+        </div>
+        <div class="course-card" onclick="showPage('courses')">
+          <div class="course-thumb" style="background:linear-gradient(135deg,#1a0a40,#4a1a7c);">🤖<div class="course-cat-tag">AI & ML</div></div>
+          <div class="course-body">
+            <div class="course-title">Machine Learning with Python & TensorFlow</div>
+            <div class="course-instructor">👩‍🏫 Prof. Maya Patel</div>
+            <div class="course-progress-bar"><div class="course-progress-fill" style="width:45%"></div></div>
+            <div class="course-progress-text">45% complete · 18 of 40 lessons</div>
+          </div>
+          <div class="course-footer"><div><div class="course-rating">⭐ 4.8</div><div class="course-students">8.9K students</div></div><button class="continue-btn">Continue →</button></div>
+        </div>
+        <div class="course-card" onclick="showPage('courses')">
+          <div class="course-thumb" style="background:linear-gradient(135deg,#0a3a2a,#1a6b4a);">📊<div class="course-cat-tag">Data Science</div></div>
+          <div class="course-body">
+            <div class="course-title">Data Analysis & Visualization Bootcamp</div>
+            <div class="course-instructor">👨‍🏫 Alex Rodriguez</div>
+            <div class="course-progress-bar"><div class="course-progress-fill" style="width:90%"></div></div>
+            <div class="course-progress-text">90% complete · 27 of 30 lessons</div>
+          </div>
+          <div class="course-footer"><div><div class="course-rating">⭐ 4.7</div><div class="course-students">6.2K students</div></div><button class="continue-btn green">Almost done!</button></div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY + LEADERBOARD -->
+      <div class="two-col">
+        <div class="panel-card">
+          <div class="section-header" style="margin-bottom:16px;"><h3 class="section-title" style="font-size:18px;">Recent Activity</h3><a class="section-link">See all</a></div>
+          <div class="activity-item"><div class="act-icon" style="background:#fff3cd;">🏆</div><div><div class="act-title">Earned "JavaScript Pro" Badge</div><div class="act-sub">Completed 10 JS challenges in a row</div></div><span class="act-time">2h ago</span></div>
+          <div class="activity-item"><div class="act-icon" style="background:#d4f5ee;">✅</div><div><div class="act-title">Completed: React Hooks Deep Dive</div><div class="act-sub">Full-Stack JavaScript Mastery</div></div><span class="act-time">5h ago</span></div>
+          <div class="activity-item"><div class="act-icon" style="background:#e8f0ff;">📝</div><div><div class="act-title">Submitted Assignment: ML Model</div><div class="act-sub">Score: 94/100 — Excellent work!</div></div><span class="act-time">Yesterday</span></div>
+          <div class="activity-item"><div class="act-icon" style="background:#fde8e8;">🎓</div><div><div class="act-title">Certificate Earned</div><div class="act-sub">Python for Beginners — Completed!</div></div><span class="act-time">3 days ago</span></div>
+        </div>
+        <div class="panel-card">
+          <div class="section-header" style="margin-bottom:16px;"><h3 class="section-title" style="font-size:18px;">🏆 Leaderboard</h3><a class="section-link" onclick="showPage('leaderboard')">Full view</a></div>
+          <div class="lb-item"><div class="lb-rank gold">1</div><div class="lb-av" style="background:#f5a623;">Z</div><div><div class="lb-name">Zara Kim</div></div><div class="lb-pts">9,840</div></div>
+          <div class="lb-item"><div class="lb-rank silver">2</div><div class="lb-av" style="background:#8892a4;">M</div><div><div class="lb-name">Marcus T.</div></div><div class="lb-pts">8,420</div></div>
+          <div class="lb-item"><div class="lb-rank bronze">3</div><div class="lb-av" style="background:#00c9a7;">L</div><div><div class="lb-name">Layla R.</div></div><div class="lb-pts">7,980</div></div>
+          <div class="lb-item" style="background:#fffcf5;border-radius:12px;padding:10px;"><div class="lb-rank" style="background:rgba(245,166,35,0.2);color:var(--accent);">4</div><div class="lb-av" style="background:var(--primary);">A</div><div><div class="lb-name">Ahmed (You) 🔥</div></div><div class="lb-pts">7,150</div></div>
+          <div class="lb-item"><div class="lb-rank">5</div><div class="lb-av" style="background:#e8472c;">J</div><div><div class="lb-name">Jake W.</div></div><div class="lb-pts">5,670</div></div>
+        </div>
+      </div>
+
+      <!-- UPCOMING EVENTS -->
+      <div class="section-header"><h3 class="section-title">Upcoming Events</h3><a class="section-link" onclick="showPage('schedule')">View calendar →</a></div>
+      <div class="panel-card">
+        <div class="event-item"><div class="event-date-box"><div class="event-day">28</div><div class="event-month">Feb</div></div><div><div class="evt-title">Live Webinar: Advanced React Patterns</div><div class="evt-sub">Dr. Sarah Chen · 3:00 PM GMT</div></div><div class="event-badge" style="background:#fff3cd;color:#b8860b;">Registered</div></div>
+        <div class="event-item"><div class="event-date-box"><div class="event-day">03</div><div class="event-month">Mar</div></div><div><div class="evt-title">Hackathon: Build with AI Challenge</div><div class="evt-sub">Online · 48-hour event</div></div><div class="event-badge" style="background:#d4f5ee;color:#0a7c5c;">Open</div></div>
+        <div class="event-item"><div class="event-date-box"><div class="event-day">10</div><div class="event-month">Mar</div></div><div><div class="evt-title">Exam: Data Structures Final Assessment</div><div class="evt-sub">Online proctored · 2 hours</div></div><div class="event-badge" style="background:#fde8e8;color:#c0392b;">Upcoming</div></div>
+      </div>
+    </div>
+    </div>
+
+    <!-- ── COURSES PAGE ── -->
+    <div id="page-courses" style="display:none;">
+    <div class="content">
+      <div class="page-header"><h1>Explore Courses 📚</h1><p>Discover expert-led courses across 50+ categories. Learn at your own pace.</p></div>
+      <div class="filter-bar">
+        <button class="filter-chip active" onclick="setFilter(this,'all')">All Courses</button>
+        <button class="filter-chip" onclick="setFilter(this,'enrolled')">My Enrolled</button>
+        <button class="filter-chip" onclick="setFilter(this,'webdev')">Web Dev</button>
+        <button class="filter-chip" onclick="setFilter(this,'ai')">AI & ML</button>
+        <button class="filter-chip" onclick="setFilter(this,'data')">Data Science</button>
+        <button class="filter-chip" onclick="setFilter(this,'design')">Design</button>
+        <button class="filter-chip" onclick="setFilter(this,'business')">Business</button>
+        <div class="filter-right"><select class="sort-select"><option>Most Popular</option><option>Highest Rated</option><option>Newest</option><option>Price: Low–High</option></select></div>
+      </div>
+      <div class="featured-banner">
+        <div>
+          <div class="feat-tag">🔥 Featured This Week</div>
+          <div class="feat-title">The Complete AI Engineering Bootcamp 2026</div>
+          <div class="feat-sub">Master GPT-4, Claude, LangChain, RAG systems, and production AI deployment. The most comprehensive AI course available.</div>
+          <div class="feat-meta">
+            <span class="feat-meta-item">👨‍🏫 Dr. James Liu</span>
+            <span class="feat-meta-item">⏱️ 60 hours</span>
+            <span class="feat-meta-item">⭐ 4.97</span>
+            <span class="feat-meta-item">👥 24,100 students</span>
+          </div>
+          <div class="feat-actions">
+            <button class="btn-gold" onclick="showToast('🚀 Enrolled in AI Engineering Bootcamp!')">Enroll Now – $49</button>
+            <button class="btn-ghost-white">Preview Course</button>
+          </div>
+        </div>
+        <div class="feat-emoji">🤖</div>
+      </div>
+
+      <div class="explore-grid" id="coursesGrid">
+        <div class="exp-course-card" data-cat="webdev enrolled">
+          <div class="exp-thumb" style="background:linear-gradient(135deg,#0a2540,#1a5276);">💻<div class="course-cat-tag">Web Dev</div><div class="course-price-badge" style="background:var(--accent2);color:#fff;position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700;">Enrolled</div></div>
+          <div class="course-body"><span class="course-level level-advanced">Advanced</span><div class="course-title" style="margin-top:10px;">Full-Stack JavaScript Mastery</div><div class="course-instructor">👨‍🏫 Dr. Sarah Chen</div><div class="exp-meta-row"><span class="exp-meta-item">📹 38 lessons</span><span class="exp-meta-item">⏱️ 42h</span></div></div>
+          <div class="course-footer"><div><div class="course-rating">⭐ 4.9 (2.1K)</div><div class="course-students">12.4K students</div></div><button class="enroll-btn enrolled">Continue →</button></div>
+        </div>
+        <div class="exp-course-card" data-cat="ai enrolled">
+          <div class="exp-thumb" style="background:linear-gradient(135deg,#1a0a40,#4a1a7c);">🤖<div class="course-cat-tag">AI & ML</div><div class="course-price-badge" style="background:var(--accent2);color:#fff;position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700;">Enrolled</div></div>
+          <div class="course-body"><span class="course-level level-intermediate">Intermediate</span><div class="course-title" style="margin-top:10px;">Machine Learning with Python & TensorFlow</div><div class="course-instructor">👩‍🏫 Prof. Maya Patel</div><div class="exp-meta-row"><span class="exp-meta-item">📹 40 lessons</span><span class="exp-meta-item">⏱️ 48h</span></div></div>
+          <div class="course-footer"><div><div class="course-rating">⭐ 4.8 (1.8K)</div><div class="course-students">8.9K students</div></div><button class="enroll-btn enrolled">Continue →</button></div>
+        </div>
+        <div class="exp-course-card" data-cat="data enrolled">
+          <div class="exp-thumb" style="background:linear-gradient(135deg,#0a3a2a,#1a6b4a);">📊<div class="course-cat-tag">Data Science</div><div class="course-price-badge" style="background:var(--accent2);color:#fff;position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700;">Enrolled</div></div>
+          <div class="course-body"><span class="course-level level-beginner">Beginner</span><div class="course-title" style="margin-top:10px;">Data Analysis & Visualization Bootcamp</div><div class="course-instructor">👨‍🏫 Alex Rodriguez</div><div class="exp-meta-row"><span class="exp-meta-item">📹 30 lessons</span><span class="exp-meta-item">⏱️ 28h</span></div></div>
+          <div class="course-footer"><div><div class="course-rating">⭐ 4.7 (970)</div><div class="course-students">6.2K students</div></div><button class="enroll-btn enrolled">Continue →</button></div>
+        </div>
+        <div class="exp-course-card" data-cat="design">
+          <div class="exp-thumb" style="background:linear-gradient(135deg,#3a0a2a,#7c1a5a);">🎨<div class="course-cat-tag">Design</div><div class="course-price-badge" style="background:var(--accent);color:var(--primary);position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700;">$39</div></div>
+          <div class="course-body"><span class="course-level level-beginner">Beginner</span><div class="course-title" style="margin-top:10px;">UI/UX Design with Figma – Complete Guide</div><div class="course-instructor">👩‍🏫 Luna Park</div><div class="exp-meta-row"><span class="exp-meta-item">📹 45 lessons</span><span class="exp-meta-item">⏱️ 35h</span></div></div>
+          <div class="course-footer"><div><div class="course-rating">⭐ 4.9 (3.2K)</div><div class="course-students">18K students</div></div><button class="enroll-btn" onclick="enrollCourse(this)">Enroll</button></div>
+        </div>
+        <div class="exp-course-card" data-cat="webdev">
+          <div class="exp-thumb" style="background:linear-gradient(135deg,#3a1a0a,#7c3a1a);">⚡<div class="course-cat-tag">Web Dev</div><div class="course-price-badge" style="background:var(--accent2);color:#fff;position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700;">FREE</div></div>
+          <div class="course-body"><span class="course-level level-beginner">Beginner</span><div class="course-title" style="margin-top:10px;">HTML & CSS for Complete Beginners</div><div class="course-instructor">👨‍🏫 Tom Walker</div><div class="exp-meta-row"><span class="exp-meta-item">📹 20 lessons</span><span class="exp-meta-item">⏱️ 12h</span></div></div>
+          <div class="course-footer"><div><div class="course-rating">⭐ 4.6 (4.5K)</div><div class="course-students">32K students</div></div><button class="enroll-btn" onclick="enrollCourse(this)">Enroll Free</button></div>
+        </div>
+        <div class="exp-course-card" data-cat="business">
+          <div class="exp-thumb" style="background:linear-gradient(135deg,#1a3a0a,#3a7c1a);">💼<div class="course-cat-tag">Business</div><div class="course-price-badge" style="background:var(--accent);color:var(--primary);position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700;">$59</div></div>
+          <div class="course-body"><span class="course-level level-intermediate">Intermediate</span><div class="course-title" style="margin-top:10px;">Digital Marketing Mastery 2026</div><div class="course-instructor">👩‍🏫 Rachel Kim</div><div class="exp-meta-row"><span class="exp-meta-item">📹 52 lessons</span><span class="exp-meta-item">⏱️ 38h</span></div></div>
+          <div class="course-footer"><div><div class="course-rating">⭐ 4.8 (1.1K)</div><div class="course-students">5.4K students</div></div><button class="enroll-btn" onclick="enrollCourse(this)">Enroll</button></div>
+        </div>
+        <div class="exp-course-card" data-cat="ai">
+          <div class="exp-thumb" style="background:linear-gradient(135deg,#0a2a3a,#1a5a7c);">🧠<div class="course-cat-tag">AI & ML</div><div class="course-price-badge" style="background:var(--accent);color:var(--primary);position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700;">$79</div></div>
+          <div class="course-body"><span class="course-level level-advanced">Advanced</span><div class="course-title" style="margin-top:10px;">Deep Learning & Neural Networks from Scratch</div><div class="course-instructor">👨‍🏫 Prof. Kenji Tanaka</div><div class="exp-meta-row"><span class="exp-meta-item">📹 60 lessons</span><span class="exp-meta-item">⏱️ 56h</span></div></div>
+          <div class="course-footer"><div><div class="course-rating">⭐ 4.9 (2.8K)</div><div class="course-students">11K students</div></div><button class="enroll-btn" onclick="enrollCourse(this)">Enroll</button></div>
+        </div>
+        <div class="exp-course-card" data-cat="data">
+          <div class="exp-thumb" style="background:linear-gradient(135deg,#2a0a3a,#5a1a7c);">📈<div class="course-cat-tag">Data Science</div><div class="course-price-badge" style="background:var(--accent);color:var(--primary);position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700;">$49</div></div>
+          <div class="course-body"><span class="course-level level-intermediate">Intermediate</span><div class="course-title" style="margin-top:10px;">SQL & Database Engineering Masterclass</div><div class="course-instructor">👩‍🏫 Dr. Priya Sharma</div><div class="exp-meta-row"><span class="exp-meta-item">📹 35 lessons</span><span class="exp-meta-item">⏱️ 30h</span></div></div>
+          <div class="course-footer"><div><div class="course-rating">⭐ 4.7 (890)</div><div class="course-students">4.1K students</div></div><button class="enroll-btn" onclick="enrollCourse(this)">Enroll</button></div>
+        </div>
+        <div class="exp-course-card" data-cat="webdev">
+          <div class="exp-thumb" style="background:linear-gradient(135deg,#0a1a3a,#1a2a7c);">🚀<div class="course-cat-tag">Web Dev</div><div class="course-price-badge" style="background:var(--accent);color:var(--primary);position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700;">$69</div></div>
+          <div class="course-body"><span class="course-level level-advanced">Advanced</span><div class="course-title" style="margin-top:10px;">React & Next.js: Production-Ready Apps</div><div class="course-instructor">👨‍🏫 Carlos Mendez</div><div class="exp-meta-row"><span class="exp-meta-item">📹 48 lessons</span><span class="exp-meta-item">⏱️ 44h</span></div></div>
+          <div class="course-footer"><div><div class="course-rating">⭐ 4.8 (1.6K)</div><div class="course-students">7.8K students</div></div><button class="enroll-btn" onclick="enrollCourse(this)">Enroll</button></div>
+        </div>
+      </div>
+      <div class="pagination">
+        <button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">3</button><button class="page-btn">...</button><button class="page-btn">12</button><button class="page-btn">→</button>
+      </div>
+    </div>
+    </div>
+
+    <!-- ── PROFILE PAGE ── -->
+    <div id="page-profile" style="display:none;">
+    <div class="content">
+      <div class="profile-hero">
+        <div class="profile-av-big">A</div>
+        <div class="profile-info">
+          <div class="profile-name">Ahmed Al-Rashid</div>
+          <div class="profile-meta">📍 Dubai, UAE · 🎓 Pro Learner · Joined Jan 2024</div>
+          <div class="profile-tags"><span class="profile-tag">🔥 12-Day Streak</span><span class="profile-tag">⭐ Level 7</span><span class="profile-tag">🏅 5 Certs</span><span class="profile-tag">💻 Web Dev</span></div>
+        </div>
+        <div class="profile-actions">
+          <button class="btn-sm btn-sm-gold" onclick="showToast('✏️ Edit profile coming soon!')">Edit Profile</button>
+          <button class="btn-sm btn-sm-outline" onclick="showToast('📤 Profile link copied!')">Share Profile</button>
+        </div>
+      </div>
+      <div class="profile-grid">
+        <div class="profile-sidebar-col">
+          <div class="panel-card">
+            <h4 style="font-weight:700;margin-bottom:18px;">📊 Learning Stats</h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div style="text-align:center;padding:16px;background:var(--light);border-radius:14px;"><div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text);">142h</div><div style="font-size:12px;color:var(--muted);">Total Hours</div></div>
+              <div style="text-align:center;padding:16px;background:var(--light);border-radius:14px;"><div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text);">8</div><div style="font-size:12px;color:var(--muted);">Courses</div></div>
+              <div style="text-align:center;padding:16px;background:var(--light);border-radius:14px;"><div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--accent);">7,150</div><div style="font-size:12px;color:var(--muted);">Points</div></div>
+              <div style="text-align:center;padding:16px;background:var(--light);border-radius:14px;"><div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--accent2);">5</div><div style="font-size:12px;color:var(--muted);">Certs</div></div>
+            </div>
+          </div>
+          <div class="panel-card">
+            <h4 style="font-weight:700;margin-bottom:18px;">🛠 Skills</h4>
+            <div class="skill-item"><div><div class="skill-name">JavaScript</div><div class="skill-bar"><div class="skill-fill" style="width:88%"></div></div></div><div class="skill-pct">88%</div></div>
+            <div class="skill-item"><div><div class="skill-name">Python</div><div class="skill-bar"><div class="skill-fill" style="width:72%"></div></div></div><div class="skill-pct">72%</div></div>
+            <div class="skill-item"><div><div class="skill-name">Machine Learning</div><div class="skill-bar"><div class="skill-fill" style="width:55%"></div></div></div><div class="skill-pct">55%</div></div>
+            <div class="skill-item"><div><div class="skill-name">React</div><div class="skill-bar"><div class="skill-fill" style="width:80%"></div></div></div><div class="skill-pct">80%</div></div>
+            <div class="skill-item" style="margin-bottom:0;"><div><div class="skill-name">UI/UX Design</div><div class="skill-bar"><div class="skill-fill" style="width:40%"></div></div></div><div class="skill-pct">40%</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="panel-card" style="margin-bottom:24px;">
+            <h4 style="font-weight:700;margin-bottom:18px;">🏅 Certificates</h4>
+            <div class="cert-item"><div class="cert-icon">🎓</div><div><div class="cert-title">Python for Beginners</div><div class="cert-date">Issued Jan 2026 · EduVerse</div></div><div class="cert-dl" onclick="showToast('📥 Certificate downloaded!')">⬇️</div></div>
+            <div class="cert-item"><div class="cert-icon">🎓</div><div><div class="cert-title">Web Development Fundamentals</div><div class="cert-date">Issued Nov 2025 · EduVerse</div></div><div class="cert-dl" onclick="showToast('📥 Certificate downloaded!')">⬇️</div></div>
+            <div class="cert-item"><div class="cert-icon">🎓</div><div><div class="cert-title">SQL Database Mastery</div><div class="cert-date">Issued Sep 2025 · EduVerse</div></div><div class="cert-dl" onclick="showToast('📥 Certificate downloaded!')">⬇️</div></div>
+            <div class="cert-item"><div class="cert-icon">🎓</div><div><div class="cert-title">React & Redux Complete</div><div class="cert-date">Issued Jul 2025 · EduVerse</div></div><div class="cert-dl" onclick="showToast('📥 Certificate downloaded!')">⬇️</div></div>
+            <div class="cert-item"><div class="cert-icon">🎓</div><div><div class="cert-title">Data Visualization with D3.js</div><div class="cert-date">Issued May 2025 · EduVerse</div></div><div class="cert-dl" onclick="showToast('📥 Certificate downloaded!')">⬇️</div></div>
+          </div>
+          <div class="panel-card">
+            <h4 style="font-weight:700;margin-bottom:18px;">🏆 Badges Earned</h4>
+            <div style="display:flex;flex-wrap:wrap;gap:12px;">
+              <div style="text-align:center;padding:16px 20px;background:var(--light);border-radius:14px;"><div style="font-size:28px;">🔥</div><div style="font-size:11px;font-weight:600;color:var(--text);margin-top:6px;">Streak King</div></div>
+              <div style="text-align:center;padding:16px 20px;background:var(--light);border-radius:14px;"><div style="font-size:28px;">⚡</div><div style="font-size:11px;font-weight:600;color:var(--text);margin-top:6px;">Fast Learner</div></div>
+              <div style="text-align:center;padding:16px 20px;background:var(--light);border-radius:14px;"><div style="font-size:28px;">🧠</div><div style="font-size:11px;font-weight:600;color:var(--text);margin-top:6px;">JS Pro</div></div>
+              <div style="text-align:center;padding:16px 20px;background:var(--light);border-radius:14px;"><div style="font-size:28px;">📚</div><div style="font-size:11px;font-weight:600;color:var(--text);margin-top:6px;">Bookworm</div></div>
+              <div style="text-align:center;padding:16px 20px;background:var(--light);border-radius:14px;"><div style="font-size:28px;">🤝</div><div style="font-size:11px;font-weight:600;color:var(--text);margin-top:6px;">Team Player</div></div>
+              <div style="text-align:center;padding:16px 20px;background:var(--light);border-radius:14px;"><div style="font-size:28px;">🥇</div><div style="font-size:11px;font-weight:600;color:var(--text);margin-top:6px;">Top 10%</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- ── LEADERBOARD PAGE ── -->
+    <div id="page-leaderboard" style="display:none;">
+    <div class="content">
+      <div class="page-header"><h1>🏆 Leaderboard</h1><p>Top learners this month based on XP points and streaks.</p></div>
+      <div class="lb-podium">
+        <div class="podium-item">
+          <div class="podium-av" style="width:60px;height:60px;background:#8892a4;font-size:22px;">M</div>
+          <div class="podium-name">Marcus T.</div>
+          <div class="podium-pts">8,420 pts</div>
+          <div class="podium-base" style="width:100px;height:80px;background:linear-gradient(135deg,#8892a4,#b0b8c4);">
+            <div class="podium-rank" style="color:rgba(255,255,255,0.6);">2</div>
+          </div>
+        </div>
+        <div class="podium-item">
+          <div class="podium-crown">👑</div>
+          <div class="podium-av" style="width:80px;height:80px;background:var(--accent);font-size:28px;color:var(--primary);">Z</div>
+          <div class="podium-name" style="font-size:16px;">Zara Kim</div>
+          <div class="podium-pts" style="font-size:15px;font-weight:700;color:var(--accent);">9,840 pts</div>
+          <div class="podium-base" style="width:120px;height:110px;background:linear-gradient(135deg,var(--accent),#e8920e);">
+            <div class="podium-rank">1</div>
+          </div>
+        </div>
+        <div class="podium-item">
+          <div class="podium-av" style="width:60px;height:60px;background:var(--accent2);font-size:22px;">L</div>
+          <div class="podium-name">Layla R.</div>
+          <div class="podium-pts">7,980 pts</div>
+          <div class="podium-base" style="width:100px;height:65px;background:linear-gradient(135deg,var(--accent2),#00a888);">
+            <div class="podium-rank" style="color:rgba(255,255,255,0.6);">3</div>
+          </div>
+        </div>
+      </div>
+      <div class="full-lb-list">
+        <div class="full-lb-header"><span style="font-weight:700;font-size:16px;">All Rankings</span><span style="font-size:13px;color:var(--muted);">Updated every hour</span></div>
+        <div class="full-lb-item"><div class="flb-rank gold">1</div><div class="flb-av" style="background:var(--accent);color:var(--primary);">Z</div><div><div class="flb-name">Zara Kim</div><div class="flb-level">Level 12 · 45 courses</div></div><div class="flb-bar-wrap"><div class="flb-bar"><div class="flb-fill" style="width:100%"></div></div></div><div class="flb-pts">9,840 pts</div></div>
+        <div class="full-lb-item"><div class="flb-rank silver">2</div><div class="flb-av" style="background:#8892a4;">M</div><div><div class="flb-name">Marcus T.</div><div class="flb-level">Level 11 · 38 courses</div></div><div class="flb-bar-wrap"><div class="flb-bar"><div class="flb-fill" style="width:86%"></div></div></div><div class="flb-pts">8,420 pts</div></div>
+        <div class="full-lb-item"><div class="flb-rank bronze">3</div><div class="flb-av" style="background:var(--accent2);">L</div><div><div class="flb-name">Layla R.</div><div class="flb-level">Level 10 · 32 courses</div></div><div class="flb-bar-wrap"><div class="flb-bar"><div class="flb-fill" style="width:81%"></div></div></div><div class="flb-pts">7,980 pts</div></div>
+        <div class="full-lb-item you"><div class="flb-rank" style="background:rgba(245,166,35,0.2);color:var(--accent);">4</div><div class="flb-av" style="background:var(--primary);">A</div><div><div class="flb-name">Ahmed (You) 🔥</div><div class="flb-level">Level 7 · 8 courses</div></div><div class="flb-bar-wrap"><div class="flb-bar"><div class="flb-fill" style="width:73%"></div></div></div><div class="flb-pts">7,150 pts</div></div>
+        <div class="full-lb-item"><div class="flb-rank">5</div><div class="flb-av" style="background:#e8472c;">J</div><div><div class="flb-name">Jake W.</div><div class="flb-level">Level 8 · 22 courses</div></div><div class="flb-bar-wrap"><div class="flb-bar"><div class="flb-fill" style="width:58%"></div></div></div><div class="flb-pts">5,670 pts</div></div>
+        <div class="full-lb-item"><div class="flb-rank">6</div><div class="flb-av" style="background:#9b59b6;">S</div><div><div class="flb-name">Sophia Chen</div><div class="flb-level">Level 6 · 18 courses</div></div><div class="flb-bar-wrap"><div class="flb-bar"><div class="flb-fill" style="width:50%"></div></div></div><div class="flb-pts">4,920 pts</div></div>
+        <div class="full-lb-item"><div class="flb-rank">7</div><div class="flb-av" style="background:#e67e22;">K</div><div><div class="flb-name">Khalid A.</div><div class="flb-level">Level 6 · 15 courses</div></div><div class="flb-bar-wrap"><div class="flb-bar"><div class="flb-fill" style="width:44%"></div></div></div><div class="flb-pts">4,310 pts</div></div>
+        <div class="full-lb-item"><div class="flb-rank">8</div><div class="flb-av" style="background:#27ae60;">P</div><div><div class="flb-name">Priya S.</div><div class="flb-level">Level 5 · 12 courses</div></div><div class="flb-bar-wrap"><div class="flb-bar"><div class="flb-fill" style="width:39%"></div></div></div><div class="flb-pts">3,870 pts</div></div>
+      </div>
+    </div>
+    </div>
+
+    <!-- ── SCHEDULE PAGE ── -->
+    <div id="page-schedule" style="display:none;">
+    <div class="content">
+      <div class="page-header"><h1>📅 My Schedule</h1><p>Track your classes, webinars, and study sessions.</p></div>
+      <div class="calendar-grid">
+        <div class="cal-card">
+          <div class="cal-header">
+            <button class="cal-nav">‹</button>
+            <h3 style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;">February 2026</h3>
+            <button class="cal-nav">›</button>
+          </div>
+          <div class="cal-days-header">
+            <div class="cal-day-label">Sun</div><div class="cal-day-label">Mon</div><div class="cal-day-label">Tue</div><div class="cal-day-label">Wed</div><div class="cal-day-label">Thu</div><div class="cal-day-label">Fri</div><div class="cal-day-label">Sat</div>
+          </div>
+          <div class="cal-days">
+            <div class="cal-day other-month">1</div><div class="cal-day other-month">2</div><div class="cal-day other-month">3</div><div class="cal-day other-month">4</div><div class="cal-day other-month">5</div><div class="cal-day other-month">6</div><div class="cal-day other-month">7</div>
+            <div class="cal-day other-month">8</div><div class="cal-day other-month">9</div><div class="cal-day other-month">10</div><div class="cal-day other-month">11</div><div class="cal-day other-month">12</div><div class="cal-day other-month">13</div><div class="cal-day other-month">14</div>
+            <div class="cal-day">1</div><div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day has-event">5</div><div class="cal-day">6</div><div class="cal-day">7</div>
+            <div class="cal-day">8</div><div class="cal-day has-event">9</div><div class="cal-day">10</div><div class="cal-day">11</div><div class="cal-day">12</div><div class="cal-day">13</div><div class="cal-day has-event">14</div>
+            <div class="cal-day">15</div><div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day">21</div>
+            <div class="cal-day">22</div><div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day today has-event">26</div><div class="cal-day has-event">27</div><div class="cal-day has-event">28</div>
+          </div>
+        </div>
+        <div>
+          <div class="cal-card" style="margin-bottom:20px;">
+            <h4 style="font-weight:700;margin-bottom:18px;">📌 Today's Schedule</h4>
+            <div class="event-item"><div class="time-slot">9:00 AM</div><div style="margin-left:12px;"><div class="evt-title">JavaScript Module 28</div><div class="evt-sub">Full-Stack JS Mastery</div></div></div>
+            <div class="event-item"><div class="time-slot">3:00 PM</div><div style="margin-left:12px;"><div class="evt-title">Live Q&A: React Patterns</div><div class="evt-sub">Dr. Sarah Chen</div></div></div>
+            <div class="event-item" style="border-bottom:none;padding-bottom:0;"><div class="time-slot">7:00 PM</div><div style="margin-left:12px;"><div class="evt-title">Study Group: ML Team</div><div class="evt-sub">Online · 8 members</div></div></div>
+          </div>
+          <div class="cal-card">
+            <h4 style="font-weight:700;margin-bottom:18px;">📆 Upcoming</h4>
+            <div class="event-item"><div class="event-date-box"><div class="event-day">28</div><div class="event-month">Feb</div></div><div style="margin-left:4px;"><div class="evt-title">React Webinar</div><div class="evt-sub">3:00 PM GMT</div></div><div class="event-badge" style="background:#fff3cd;color:#b8860b;">Soon</div></div>
+            <div class="event-item"><div class="event-date-box"><div class="event-day">03</div><div class="event-month">Mar</div></div><div style="margin-left:4px;"><div class="evt-title">AI Hackathon</div><div class="evt-sub">48h Event</div></div><div class="event-badge" style="background:#d4f5ee;color:#0a7c5c;">Open</div></div>
+            <div class="event-item" style="border-bottom:none;padding-bottom:0;"><div class="event-date-box"><div class="event-day">10</div><div class="event-month">Mar</div></div><div style="margin-left:4px;"><div class="evt-title">DS Final Exam</div><div class="evt-sub">2 hours</div></div><div class="event-badge" style="background:#fde8e8;color:#c0392b;">Exam</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+  </div><!-- end main-area -->
+</div><!-- end app-shell -->
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+  // ─── AUTH ───
+  function switchAuthTab(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('lf-login').style.display = isLogin ? 'block' : 'none';
+    document.getElementById('lf-signup').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('tab-login').classList.toggle('active', isLogin);
+    document.getElementById('tab-signup').classList.toggle('active', !isLogin);
+    document.getElementById('lf-title').textContent = isLogin ? 'Welcome Back 👋' : 'Join EduVerse 🚀';
+    document.getElementById('lf-sub').innerHTML = isLogin
+      ? 'New here? <a onclick="switchAuthTab(\'signup\')">Create a free account</a>'
+      : 'Already have an account? <a onclick="switchAuthTab(\'login\')">Sign in</a>';
+  }
+
+  function doLogin() {
+    document.getElementById('page-login').style.display = 'none';
+    document.getElementById('app-shell').style.display = 'flex';
+    document.getElementById('mobileToggle').style.display = '';
+    showPage('dashboard');
+    animateStats();
+    showToast('👋 Welcome back, Ahmed!');
+  }
+
+  function doLogout() {
+    document.getElementById('app-shell').style.display = 'none';
+    document.getElementById('page-login').style.display = 'flex';
+    document.getElementById('mobileToggle').style.display = 'none';
+    showToast('👋 Logged out successfully!');
+  }
+
+  function togglePw(id, btn) {
+    const el = document.getElementById(id);
+    if (el.type === 'password') { el.type = 'text'; btn.textContent = '🙈'; }
+    else { el.type = 'password'; btn.textContent = '👁️'; }
+  }
+
+  // ─── PAGE NAVIGATION ───
+  const pages = ['dashboard', 'courses', 'profile', 'leaderboard', 'schedule'];
+  const pageTitles = { dashboard: 'Dashboard', courses: 'My Courses', profile: 'My Profile', leaderboard: 'Leaderboard', schedule: 'Schedule' };
+
+  function showPage(name) {
+    pages.forEach(p => {
+      const el = document.getElementById('page-' + p);
+      if (el) el.style.display = p === name ? 'block' : 'none';
+    });
+    // Update nav active states
+    pages.forEach(p => {
+      const nav = document.getElementById('nav-' + p);
+      if (nav) nav.classList.toggle('active', p === name);
+    });
+    // Update topbar title
+    document.getElementById('topbar-title').textContent = pageTitles[name] || name;
+    // Close sidebar on mobile
+    document.getElementById('sidebar').classList.remove('open');
+    // Scroll to top
+    window.scrollTo(0, 0);
+  }
+
+  // ─── SIDEBAR MOBILE ───
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+
+  // ─── STAT COUNTER ANIMATION ───
+  function animateStats() {
+    document.querySelectorAll('.stat-value[data-target]').forEach(el => {
+      const target = parseInt(el.dataset.target);
+      const suffix = el.dataset.suffix || '';
+      let current = 0;
+      const step = target / 40;
+      el.textContent = '0' + suffix;
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = Math.floor(current) + suffix;
+        if (current >= target) clearInterval(timer);
+      }, 30);
+    });
+  }
+
+  // ─── COURSE FILTER ───
+  function setFilter(btn, category) {
+    document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#coursesGrid .exp-course-card').forEach(card => {
+      card.style.display = (category === 'all' || card.dataset.cat.includes(category)) ? '' : 'none';
+    });
+  }
+
+  function enrollCourse(btn) {
+    btn.textContent = 'Enrolled ✓';
+    btn.classList.add('enrolled');
+    btn.disabled = true;
+    showToast('🎉 Successfully enrolled in course!');
+  }
+
+  // ─── TOAST ───
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ─── INIT ───
+  // Start on login page — app-shell is hidden by default
+  document.getElementById('mobileToggle').style.display = 'none';
+</script>
+</body>
+</html>
