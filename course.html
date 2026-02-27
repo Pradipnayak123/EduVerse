@@ -298,6 +298,17 @@
   .exp-thumb { height: 155px; display: flex; align-items: center; justify-content: center; font-size: 52px; position: relative; }
   .course-level { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
   .level-beginner { background: #d4f5ee; color: #0a7c5c; }
+
+
+
+  /* discussion page styles */
+  .disc-item { padding: 12px; cursor: pointer; transition: background 0.2s; }
+  .disc-item:hover { background: #f0f0f0; }
+
+  /* friends page grid */
+  .friends-grid .panel-card { padding: 16px; }
+  .friends-grid .user-av { width: 50px; height: 50px; font-size: 18px; }
+
   .level-intermediate { background: #fff3cd; color: #b8860b; }
   .level-advanced { background: #fde8e8; color: #c0392b; }
   .exp-meta-row { display: flex; gap: 16px; margin-bottom: 14px; }
@@ -557,12 +568,12 @@
     <button class="nav-item" id="nav-schedule" onclick="showPage('schedule')"><span class="nav-icon">📅</span> Schedule</button>
     <span class="nav-section-title">Community</span>
     <button class="nav-item" id="nav-leaderboard" onclick="showPage('leaderboard')"><span class="nav-icon">🏆</span> Leaderboard</button>
-    <button class="nav-item" onclick="showToast('💬 Discussions coming soon!')"><span class="nav-icon">💬</span> Discussions <span class="nav-badge">3</span></button>
-    <button class="nav-item" onclick="showToast('👥 Study Groups coming soon!')"><span class="nav-icon">👥</span> Study Groups</button>
+    <button class="nav-item" id="nav-discussion" onclick="showPage('discussion')"><span class="nav-icon">💬</span> Discussions <span class="nav-badge">3</span></button>
+    <button class="nav-item" id="nav-groups" onclick="showPage('groups')"><span class="nav-icon">👥</span> Study Groups</button>
     <span class="nav-section-title">Account</span>
     <button class="nav-item" id="nav-profile" onclick="showPage('profile')"><span class="nav-icon">👤</span> Profile</button>
-    <button class="nav-item" onclick="showToast('🏅 Certificates page coming soon!')"><span class="nav-icon">🏅</span> Certificates</button>
-    <button class="nav-item" onclick="showToast('⚙️ Settings coming soon!')"><span class="nav-icon">⚙️</span> Settings</button>
+    <button class="nav-item" id="nav-certificates" onclick="showPage('certificates')"><span class="nav-icon">🏅</span> Certificates</button>
+    <button class="nav-item" id="nav-settings" onclick="showPage('settings')"><span class="nav-icon">⚙️</span> Settings</button>
     <div class="sb-bottom">
       <div class="user-card">
         <div class="user-av">A</div>
@@ -914,6 +925,87 @@
     </div>
     </div>
 
+    <!-- new pages: discussions, groups, friends -->
+    <div id="page-discussion" style="display:none;">
+      <div class="content">
+        <div class="page-header"><h1>💬 Discussions</h1><p>Chat with the community about courses or topics.</p></div>
+        <div class="panel-card" style="margin-bottom:20px;">
+          <div class="disc-item"><strong>How to get started with Python?</strong><div class="disc-sub" style="font-size:12px;color:var(--muted);">Asked by Lina · 2 replies</div></div>
+        </div>
+        <div class="panel-card" style="margin-bottom:20px;">
+          <div class="disc-item"><strong>Best resources for React hooks?</strong><div class="disc-sub" style="font-size:12px;color:var(--muted);">Asked by Miguel · 5 replies</div></div>
+        </div>
+        <div class="panel-card">
+          <div class="disc-item"><strong>Group study tips?</strong><div class="disc-sub" style="font-size:12px;color:var(--muted);">Asked by Ahmed · 3 replies</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-groups" style="display:none;">
+      <div class="content">
+        <div class="page-header"><h1>👥 Study Groups</h1><p>Join or create groups to study together. Use video calls to collaborate.</p><button class="btn-gold" style="font-size:13px;padding:8px 16px;" onclick="showToast('🔧 Create group feature coming soon!')">+ New Group</button></div>
+        <div class="panel-card" style="margin-bottom:16px;">
+          <div><strong>ML Study Squad</strong> · 12 members <button class="btn-sm btn-sm-gold" style="margin-left:10px;" onclick="showToast('📹 Starting video call...')">Start Call</button></div>
+        </div>
+        <div class="panel-card" style="margin-bottom:16px;">
+          <div><strong>Frontend Friends</strong> · 8 members <button class="btn-sm btn-sm-gold" style="margin-left:10px;" onclick="showToast('📹 Starting video call...')">Start Call</button></div>
+        </div>
+        <div class="panel-card" style="background:#f9f4e8;">
+          <h4 style="margin-bottom:8px;font-weight:700;">🏅 Top Groups</h4>
+          <ul style="font-size:13px;">
+            <li>AI Enthusiasts (18 members)</li>
+            <li>Data Wizards (15 members)</li>
+            <li>React Masters (14 members)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-friends" style="display:none;">
+      <div class="content">
+        <div class="page-header"><h1>👥 Friends</h1><p>Keep track of your learning buddies.</p></div>
+        <div class="friends-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+          <div class="panel-card" style="text-align:center;"><div class="user-av" style="margin:0 auto;">L</div><div style="margin-top:8px;font-weight:600;">Lina</div></div>
+          <div class="panel-card" style="text-align:center;"><div class="user-av" style="margin:0 auto;">M</div><div style="margin-top:8px;font-weight:600;">Miguel</div></div>
+          <div class="panel-card" style="text-align:center;"><div class="user-av" style="margin:0 auto;">S</div><div style="margin-top:8px;font-weight:600;">Sara</div></div>
+        </div>
+        <button class="btn-primary" style="margin-top:20px;" onclick="showToast('➕ Add friend feature coming soon!')">Add Friend</button>
+      </div>
+    </div>
+
+    <div id="page-certificates" style="display:none;">
+      <div class="content">
+        <div class="page-header"><h1>🏅 My Certificates</h1><p>Download your earned certificates.</p></div>
+        <div class="panel-card" style="margin-bottom:16px;">
+          <div class="cert-item"><div class="cert-icon">🎓</div><div><div class="cert-title">Python for Beginners</div><div class="cert-date">Issued Jan 2026 · EduVerse</div></div><div class="cert-dl" onclick="showToast('📥 Certificate downloaded!')">⬇️</div></div>
+        </div>
+        <div class="panel-card" style="margin-bottom:16px;">
+          <div class="cert-item"><div class="cert-icon">🎓</div><div><div class="cert-title">Web Development Fundamentals</div><div class="cert-date">Issued Nov 2025 · EduVerse</div></div><div class="cert-dl" onclick="showToast('📥 Certificate downloaded!')">⬇️</div></div>
+        </div>
+        <div class="panel-card" style="margin-bottom:16px;">
+          <div class="cert-item"><div class="cert-icon">🎓</div><div><div class="cert-title">SQL Database Mastery</div><div class="cert-date">Issued Sep 2025 · EduVerse</div></div><div class="cert-dl" onclick="showToast('📥 Certificate downloaded!')">⬇️</div></div>
+        </div>
+        <div class="panel-card" style="margin-bottom:16px;">
+          <div class="cert-item"><div class="cert-icon">🎓</div><div><div class="cert-title">React & Redux Complete</div><div class="cert-date">Issued Jul 2025 · EduVerse</div></div><div class="cert-dl" onclick="showToast('📥 Certificate downloaded!')">⬇️</div></div>
+        </div>
+        <div class="panel-card">
+          <div class="cert-item"><div class="cert-icon">🎓</div><div><div class="cert-title">Data Visualization with D3.js</div><div class="cert-date">Issued May 2025 · EduVerse</div></div><div class="cert-dl" onclick="showToast('📥 Certificate downloaded!')">⬇️</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-settings" style="display:none;">
+      <div class="content">
+        <div class="page-header"><h1>⚙️ Settings</h1><p>Control your account preferences.</p></div>
+        <div class="panel-card" style="margin-bottom:16px;">
+          <div class="field-group"><label class="field-label">Theme</label><select class="role-select"><option>Light</option><option>Dark</option></select></div>
+          <div class="field-group"><label class="field-label">Notifications</label><select class="role-select"><option>All</option><option>Mentions Only</option><option>None</option></select></div>
+          <div class="field-group"><label class="field-label">Language</label><select class="role-select"><option>English</option><option>Spanish</option></select></div>
+        </div>
+        <button class="btn-primary" onclick="showToast('💾 Settings saved!')">Save Changes</button>
+      </div>
+    </div>
+
   </div><!-- end main-area -->
 </div><!-- end app-shell -->
 
@@ -957,8 +1049,8 @@
   }
 
   // ─── PAGE NAVIGATION ───
-  const pages = ['dashboard', 'courses', 'profile', 'leaderboard', 'schedule'];
-  const pageTitles = { dashboard: 'Dashboard', courses: 'My Courses', profile: 'My Profile', leaderboard: 'Leaderboard', schedule: 'Schedule' };
+  const pages = ['dashboard', 'courses', 'profile', 'leaderboard', 'schedule', 'discussion', 'groups', 'friends', 'certificates', 'settings'];
+  const pageTitles = { dashboard: 'Dashboard', courses: 'My Courses', profile: 'My Profile', leaderboard: 'Leaderboard', schedule: 'Schedule', discussion: 'Discussions', groups: 'Study Groups', friends: 'Friends', certificates: 'Certificates', settings: 'Settings' };
 
   function showPage(name) {
     pages.forEach(p => {
@@ -1029,5 +1121,9 @@
   // Start on login page — app-shell is hidden by default
   document.getElementById('mobileToggle').style.display = 'none';
 </script>
+
+
+
+
 </body>
 </html>
